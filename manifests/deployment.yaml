@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: events-logger
+spec:
+  selector:
+    matchLabels:
+      app: events-logger
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: events-logger
+    spec:
+      serviceAccountName: events-logger
+      securityContext:
+        sysctls:
+          # https://github.com/kubernetes/kubernetes/pull/54896
+          #- name: net.core.somaxconn
+          #  value: "65535"
+          - name: net.ipv4.ip_local_port_range
+            value: "10000 65535"
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - events-logger
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+      containers:
+        - name: controller
+          image: docker.pkg.github.com/kaidotdev/events-logger/events-logger:6bd1d07
+          args:
+            - --concurrency=2
+          imagePullPolicy: Always
