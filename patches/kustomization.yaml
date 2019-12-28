@@ -1,0 +1,10 @@
+namespace: events-logger
+
+bases:
+  - ../manifests
+
+resources:
+  - namespace.yaml
+
+patchesStrategicMerge:
+  - deployment.yaml
