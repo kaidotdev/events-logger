@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: events-logger
-  replicas: 4
+  replicas: 1
   strategy:
     rollingUpdate:
       maxSurge: 25%
