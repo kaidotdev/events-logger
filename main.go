@@ -63,15 +63,20 @@ func NewController(clientset kubernetes.Interface, informer v1beta1Informers.Eve
 		recorder:  recorder,
 	}
 
+	eventHandler := func(object interface{}) {
+		key, err := cache.MetaNamespaceKeyFunc(object)
+		if err != nil {
+			utilruntime.HandleError(err)
+			return
+		}
+		controller.workqueue.Add(key)
+	}
 	informer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(object interface{}) {
-			key, err := cache.MetaNamespaceKeyFunc(object)
-			if err != nil {
-				utilruntime.HandleError(err)
-				return
-			}
-			controller.workqueue.Add(key)
+		AddFunc: eventHandler,
+		UpdateFunc: func(_oldObj interface{}, newObj interface{}) {
+			eventHandler(newObj)
 		},
+		DeleteFunc: eventHandler,
 	})
 
 	return controller
