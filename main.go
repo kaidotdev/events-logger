@@ -73,8 +73,10 @@ func NewController(clientset kubernetes.Interface, informer v1beta1Informers.Eve
 	}
 	informer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: eventHandler,
-		UpdateFunc: func(_oldObj interface{}, newObj interface{}) {
-			eventHandler(newObj)
+		UpdateFunc: func(oldObj interface{}, newObj interface{}) {
+			if oldObj != newObj {
+				eventHandler(newObj)
+			}
 		},
 		DeleteFunc: eventHandler,
 	})
