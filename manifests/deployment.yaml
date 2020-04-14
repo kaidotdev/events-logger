@@ -3,15 +3,15 @@ kind: Deployment
 metadata:
   name: events-logger
 spec:
-  selector:
-    matchLabels:
-      app: events-logger
   replicas: 4
   strategy:
+    type: RollingUpdate
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 1
-    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: events-logger
   template:
     metadata:
       labels:
